@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  web:
+    # カレントディレクトリでイメージを構築
+    build:
+      context: docker/php
+    # /bin/bashでプロセスを継続させてコンテナの正常終了を防ぐ
+    command: bash -c "composer install && /bin/bash"
+    # カレントディレクトリをコンテナへマウント
+    volumes:
+      - .:/usr/src/web
+    # プロセスを継続させてコンテナの正常終了を防ぐ
+    stdin_open: true
+    # dbへ関連付け
+    links:
+      - db
+
+  db:
+    build:
+      context: docker/mysql
+    # コンテナが停止しても自動で再起動する
+    restart: always
+    # ホストの13306番ポートにコンテナの3306番ポートをフォワード
+    ports:
+      - "13306:3306"
+    platform: linux/amd64
+    # プロセスを継続させてコンテナの正常終了を防ぐ
+    stdin_open: true
+    # DockerfileにENVを設定しても読み込まれないので
+    environment:
+      MYSQL_ROOT_PASSWORD: password
