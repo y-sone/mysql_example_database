@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    # カレントディレクトリでイメージを構築
+    # docker/phpのDockerfileでイメージを構築
     build:
       context: docker/php
     # /bin/bashでプロセスを継続させてコンテナの正常終了を防ぐ
@@ -12,11 +12,12 @@ services:
       - .:/usr/src/web
     # プロセスを継続させてコンテナの正常終了を防ぐ
     stdin_open: true
-    # dbへ関連付け
-    links:
+    # dbへ依存
+    depends_on:
       - db
 
   db:
+    # docker/mysqlのDockerfileでイメージを構築
     build:
       context: docker/mysql
     # コンテナが停止しても自動で再起動する
@@ -24,6 +25,7 @@ services:
     # ホストの13306番ポートにコンテナの3306番ポートをフォワード
     ports:
       - "13306:3306"
+    # M1Mac特有のエラー防止
     platform: linux/amd64
     # プロセスを継続させてコンテナの正常終了を防ぐ
     stdin_open: true
